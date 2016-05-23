@@ -1,11 +1,12 @@
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
-DATABASE = 'flaskr.db'
-DEBUG = True
-SECRET_KEY = 'my_precious'
-USERNAME = 'admin'
-PASSWORD = 'admin'
+DATABASE    = 'flaskr.db'
+DEBUG       = True
+SECRET_KEY  = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
+USERNAME    = 'admin'
+PASSWORD    = 'admin'
+APPID       = 'http://localhost:5000/'
 
 # defines the full path for the database
 DATABASE_PATH = os.path.join(basedir, DATABASE)
