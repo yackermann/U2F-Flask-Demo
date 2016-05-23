@@ -6,7 +6,7 @@ DEBUG       = True
 SECRET_KEY  = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 USERNAME    = 'admin'
 PASSWORD    = 'admin'
-APPID       = 'http://localhost:5000/'
+APPID       = 'https://localhost:5000'
 
 # defines the full path for the database
 DATABASE_PATH = os.path.join(basedir, DATABASE)
