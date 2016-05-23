@@ -91,4 +91,39 @@ def u2fenroll():
         user['_u2f_devices_'] = [d.json for d in devices]
 
 
-        return jsonify({'status': 'success', 'users': users})
+        return jsonify({'status': 'success'})
+
+@app.route('/sign', methods=['GET', 'POST'])
+def u2fsign():
+    """User sign/u2f/authentication/session management."""
+
+    if not session.get('logged_in', False):
+        return jsonify({'status': 'failed', 'error': 'Access denied. You must login'})
+
+    user = users[session['username']]
+
+    # Get user challenge
+    if request.method == 'GET':
+        devices = [DeviceRegistration.wrap(device)
+                   for device in user.get('_u2f_devices_', [])]
+        challenge = start_authenticate(devices)
+        user['_u2f_challenge_'] = challenge.json
+        return challenge.json
+
+    # Verify User
+    elif request.method == 'POST':
+        data = request.json
+
+        devices = [DeviceRegistration.wrap(device)
+                   for device in user.get('_u2f_devices_', [])]
+
+        challenge = user.pop('_u2f_challenge_')
+        counter, touch = verify_authenticate(devices, challenge, data, [app.config['APPID']])
+
+        return jsonify({
+            # FIDO U2F protocol specifies x01 is true for user touch. 
+            # Need to convert to bool before include to JSON
+            'touch': bool(touch), 
+            'counter': counter,
+            'status': 'success'
+        })
