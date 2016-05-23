@@ -62,7 +62,7 @@ from u2flib_server.jsapi import DeviceRegistration
 from u2flib_server.u2f import (start_register, complete_register, start_authenticate, verify_authenticate)
 from cryptography.hazmat.primitives.serialization import Encoding
 
-@app.route('/enroll')
+@app.route('/enroll', methods=['GET', 'POST'])
 def u2fenroll():
     """User enroll/u2f/authentication/session management."""
 
@@ -71,7 +71,24 @@ def u2fenroll():
 
     user = users[session['username']]
 
-    devices = [DeviceRegistration.wrap(device) for device in user.get('_u2f_devices_', [])]
-    enroll  = start_register(app.config['APPID'], devices)
-    user['_u2f_enroll_'] = enroll.json
-    return enroll.json
+    # Get user challenge
+    if request.method == 'GET':
+
+        devices = [DeviceRegistration.wrap(device) for device in user.get('_u2f_devices_', [])]
+        enroll  = start_register(app.config['APPID'], devices)
+        user['_u2f_enroll_'] = enroll.json
+        return enroll.json
+
+    # Verify User
+    elif request.method == 'POST':
+        data = request.json
+
+        binding, cert = complete_register(user.pop('_u2f_enroll_'), data,
+                                          [app.config['APPID']])
+
+        devices = [DeviceRegistration.wrap(device) for device in user.get('_u2f_devices_', [])]
+        devices.append(binding)
+        user['_u2f_devices_'] = [d.json for d in devices]
+
+
+        return jsonify({'status': 'success', 'users': users})
