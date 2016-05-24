@@ -1,6 +1,10 @@
 from app import app
 from flask import jsonify, request, session
 
+# U2F Libs
+from u2flib_server.jsapi import DeviceRegistration
+from u2flib_server.u2f import (start_register, complete_register, start_authenticate, verify_authenticate)
+
 users = {}
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -56,11 +60,6 @@ def logout():
     session.pop('logged_in', None)
     session.pop('username', None)
     return jsonify({'status': 'success'})
-
-
-from u2flib_server.jsapi import DeviceRegistration
-from u2flib_server.u2f import (start_register, complete_register, start_authenticate, verify_authenticate)
-from cryptography.hazmat.primitives.serialization import Encoding
 
 @app.route('/enroll', methods=['GET', 'POST'])
 def u2fenroll():
@@ -127,3 +126,15 @@ def u2fsign():
             'counter': counter,
             'status': 'success'
         })
+
+# TODO -> Implement facets
+@app.route('/facets.json')
+def facets():
+    return jsonify({
+      "trustedFacets" : [{
+        "version": { "major": 1, "minor" : 0 },
+        "ids": [
+            "https://localhost:5000"
+        ]
+      }]
+    })

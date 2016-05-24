@@ -8,6 +8,9 @@ USERNAME    = 'admin'
 PASSWORD    = 'admin'
 APPID       = 'https://localhost:5000'
 
+# TODO -> Implement facets support
+# APPID       = 'https://localhost:5000/facets.json'
+
 # defines the full path for the database
 DATABASE_PATH = os.path.join(basedir, DATABASE)
 
