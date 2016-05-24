@@ -13,7 +13,8 @@ def register():
 
     if request.method == 'POST':
         req = request.json
-        if 'username' not in req or 'password' not in req:
+
+        if not req.get('username')  or not req.get('password'):
             return jsonify({'status': 'failed', 'error': 'Username or/and password missing'})
 
         if req['username'] in users:
@@ -53,13 +54,15 @@ def isLogged():
     return jsonify({'logged_in': session.get('logged_in', False)})
 
 
-
 @app.route('/logout')
 def logout():
     """User logout/authentication/session management."""
     session.pop('logged_in', None)
     session.pop('username', None)
     return jsonify({'status': 'success'})
+
+
+# FIDO U2F
 
 @app.route('/enroll', methods=['GET', 'POST'])
 def u2fenroll():
