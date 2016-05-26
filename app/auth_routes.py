@@ -40,9 +40,14 @@ def login():
 
         if user:
             if user.check_password(req['password']):
-                session['logged_in'] = True
-                session['username']  = user.username
-                return jsonify({'status': 'success'})
+                session['authenticated'] = True
+                session['username']      = user.username
+
+                if user.get_u2f_devices() == []:
+                    session['logged_in'] = True
+                    return jsonify({'status': 'success'})
+                else:
+                    return jsonify({'status': 'failed', 'u2f_sign_required': True})
             else:
                 return jsonify({'status': 'failed', 'error': 'Username or/and password is incorrect'})
             
@@ -59,8 +64,9 @@ def isLogged():
 @app.route('/logout')
 def logout():
     """User logout/authentication/session management."""
-    session.pop('logged_in', None)
-    session.pop('username', None)
+    session.pop('logged_in'     , None)
+    session.pop('username'      , None)
+    session.pop('authenticated' , None)
     return jsonify({'status': 'success'})
 
 
@@ -105,7 +111,7 @@ def u2fenroll():
 def u2fsign():
     """User sign/u2f/authentication/session management."""
 
-    if not session.get('logged_in', False):
+    if not session.get('authenticated', False):
         return jsonify({'status': 'failed', 'error': 'Access denied. You must login'})
 
     user = models.Auth.query.filter_by(username=session['username']).first()
@@ -128,6 +134,7 @@ def u2fsign():
             challenge = session.pop('_u2f_challenge_')
             counter, touch = verify_authenticate(devices, challenge, signature, [app.config['APPID']])
 
+            session['logged_in'] = True
             return jsonify({
                 # FIDO U2F protocol specifies x01 is true for user touch. 
                 # Need to convert to bool before include to JSON
