@@ -1,4 +1,4 @@
-from app import app
+from app import app, db, models
 from flask import jsonify, request, session
 
 # U2F Libs
@@ -17,14 +17,17 @@ def register():
         if not req.get('username')  or not req.get('password'):
             return jsonify({'status': 'failed', 'error': 'Username or/and password missing'})
 
-        if req['username'] in users:
-            return jsonify({'status': 'failed', 'error': 'User already exists'})
-        else:
-            users[req['username']] = {
-                'username': req['username'],
-                'password': req['password']
-            }
+        user_result = models.Auth.query.filter_by(username=req['username']).first()
+
+        if not user_result:
+            new_user = models.Auth(req['username'], req['password'])
+            db.session.add(new_user)
+            db.session.commit()
             return jsonify({'status': 'success'})
+
+        else:
+            return jsonify({'status': 'failed', 'error': 'User already exists'})
+
 
     return jsonify({})
 
@@ -36,8 +39,10 @@ def login():
         if not req.get('username')  or not req.get('password'):
             return jsonify({'status': 'failed', 'error': 'Username or/and password missing'})
 
-        if users.get(req['username']):
-            if users[req['username']]['password'] == req['username']:
+        user_result = models.Auth.query.filter_by(username=req['username']).first()
+
+        if user_result:
+            if user_result.check_password(req['password']):
                 session['logged_in'] = True
                 session['username']  = req['username']
                 return jsonify({'status': 'success'})
