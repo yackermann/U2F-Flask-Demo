@@ -3,10 +3,13 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 DATABASE    = 'flaskr.db'
 DEBUG       = True
-SECRET_KEY  = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 USERNAME    = 'admin'
 PASSWORD    = 'admin'
 APPID       = 'https://localhost:5000'
+COOKEY_FILE = 'COOKEY.key'
+
+with open(COOKEY_FILE) as r:
+    SECRET_KEY = r.read() #Reads key from file
 
 # TODO -> Implement facets support
 # APPID       = 'https://localhost:5000/facets.json'
