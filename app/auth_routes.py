@@ -5,8 +5,6 @@ from flask import jsonify, request, session
 from u2flib_server.jsapi import DeviceRegistration
 from u2flib_server.u2f import (start_register, complete_register, start_authenticate, verify_authenticate)
 
-users = {}
-
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     """User register/authentication/session management."""
@@ -17,12 +15,11 @@ def register():
         if not req.get('username')  or not req.get('password'):
             return jsonify({'status': 'failed', 'error': 'Username or/and password missing'})
 
-        user_result = models.Auth.query.filter_by(username=req['username']).first()
+        user = models.Auth.query.filter_by(username=req['username']).first()
 
-        if not user_result:
+        if not user:
             new_user = models.Auth(req['username'], req['password'])
-            db.session.add(new_user)
-            db.session.commit()
+            new_user.commit()
             return jsonify({'status': 'success'})
 
         else:
@@ -39,12 +36,12 @@ def login():
         if not req.get('username')  or not req.get('password'):
             return jsonify({'status': 'failed', 'error': 'Username or/and password missing'})
 
-        user_result = models.Auth.query.filter_by(username=req['username']).first()
+        user = models.Auth.query.filter_by(username=req['username']).first()
 
-        if user_result:
-            if user_result.check_password(req['password']):
+        if user:
+            if user.check_password(req['password']):
                 session['logged_in'] = True
-                session['username']  = req['username']
+                session['username']  = user.username
                 return jsonify({'status': 'success'})
             else:
                 return jsonify({'status': 'failed', 'error': 'Username or/and password is incorrect'})
@@ -76,29 +73,33 @@ def u2fenroll():
     if not session.get('logged_in', False):
         return jsonify({'status': 'failed', 'error': 'Access denied. You must login'})
 
-    user = users[session['username']]
+    user = models.Auth.query.filter_by(username=session['username']).first()
+    
+    if user:
+        # Get user challenge
+        if request.method == 'GET':
 
-    # Get user challenge
-    if request.method == 'GET':
+            devices = [DeviceRegistration.wrap(device) for device in user.get_u2f_devices()]
+            enroll  = start_register(app.config['APPID'], devices)
 
-        devices = [DeviceRegistration.wrap(device) for device in user.get('_u2f_devices_', [])]
-        enroll  = start_register(app.config['APPID'], devices)
-        user['_u2f_enroll_'] = enroll.json
-        return enroll.json
+            session['_u2f_enroll_'] = enroll.json
+            return enroll.json
 
-    # Verify User
-    elif request.method == 'POST':
-        data = request.json
+        # Verify User
+        elif request.method == 'POST':
+            response = request.json
 
-        binding, cert = complete_register(user.pop('_u2f_enroll_'), data,
-                                          [app.config['APPID']])
+            binding, cert = complete_register(session.pop('_u2f_enroll_'), response,
+                                              [app.config['APPID']])
 
-        devices = [DeviceRegistration.wrap(device) for device in user.get('_u2f_devices_', [])]
-        devices.append(binding)
-        user['_u2f_devices_'] = [d.json for d in devices]
+            devices = [DeviceRegistration.wrap(device) for device in user.get_u2f_devices()]
+            devices.append(binding)
+            user.set_u2f_devices([d.json for d in devices])
+            user.commit()
 
+            return jsonify({'status': 'success'})
 
-        return jsonify({'status': 'success'})
+    return jsonify({'status': 'failed', 'error': 'Access denied. You must login'})
 
 @app.route('/sign', methods=['GET', 'POST'])
 def u2fsign():
@@ -107,33 +108,35 @@ def u2fsign():
     if not session.get('logged_in', False):
         return jsonify({'status': 'failed', 'error': 'Access denied. You must login'})
 
-    user = users[session['username']]
+    user = models.Auth.query.filter_by(username=session['username']).first()
 
-    # Get user challenge
-    if request.method == 'GET':
-        devices = [DeviceRegistration.wrap(device)
-                   for device in user.get('_u2f_devices_', [])]
-        challenge = start_authenticate(devices)
-        user['_u2f_challenge_'] = challenge.json
-        return challenge.json
+    if user:
 
-    # Verify User
-    elif request.method == 'POST':
-        data = request.json
+        # Get user challenge
+        if request.method == 'GET':
+            devices = [DeviceRegistration.wrap(device) for device in user.get_u2f_devices()]
+            challenge = start_authenticate(devices)
+            session['_u2f_challenge_'] = challenge.json
+            return challenge.json
 
-        devices = [DeviceRegistration.wrap(device)
-                   for device in user.get('_u2f_devices_', [])]
+        # Verify User
+        elif request.method == 'POST':
+            signature = request.json
 
-        challenge = user.pop('_u2f_challenge_')
-        counter, touch = verify_authenticate(devices, challenge, data, [app.config['APPID']])
+            devices = [DeviceRegistration.wrap(device) for device in user.get_u2f_devices()]
 
-        return jsonify({
-            # FIDO U2F protocol specifies x01 is true for user touch. 
-            # Need to convert to bool before include to JSON
-            'touch': bool(touch), 
-            'counter': counter,
-            'status': 'success'
-        })
+            challenge = session.pop('_u2f_challenge_')
+            counter, touch = verify_authenticate(devices, challenge, signature, [app.config['APPID']])
+
+            return jsonify({
+                # FIDO U2F protocol specifies x01 is true for user touch. 
+                # Need to convert to bool before include to JSON
+                'touch': bool(touch), 
+                'counter': counter,
+                'status': 'success'
+            })
+
+    return jsonify({'status': 'failed', 'error': 'Access denied. You must login'})
 
 # TODO -> Implement facets
 @app.route('/facets.json')
