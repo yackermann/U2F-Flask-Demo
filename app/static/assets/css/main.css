@@ -699,8 +699,11 @@
 		}
 
 /* Main */
-
-	#main {
+	.main.hidden {
+		display: none;
+	}
+	
+	.main, #main {
 		position: relative;
 		max-width: 100%;
 		min-width: 27em;
@@ -724,20 +727,20 @@
 		transition: opacity 1s ease, transform 1s ease;
 	}
 
-		#main .avatar {
+		.main .avatar, #main .avatar {
 			position: relative;
 			display: block;
 			margin-bottom: 1.5em;
 		}
 
-			#main .avatar img {
+			.main .avatar img, #main .avatar img {
 				display: block;
 				margin: 0 auto;
 				border-radius: 100%;
 				box-shadow: 0 0 0 1.5em #ffffff;
 			}
 
-			#main .avatar:before {
+			.main .avatar:before, #main .avatar:before {
 				content: '';
 				display: block;
 				position: absolute;
@@ -751,20 +754,20 @@
 
 		@media screen and (max-width: 480px) {
 
-			#main {
+			.main, #main {
 				min-width: 0;
 				width: 100%;
 				padding: 4em 2em 2.5em 2em ;
 			}
 
-				#main .avatar:before {
+				.main .avatar:before, #main .avatar:before {
 					left: -2em;
 					width: calc(100% + 4em);
 				}
 
 		}
 
-		body.is-loading #main {
+		body.is-loading .main, body.is-loading .main #main {
 			opacity: 0;
 			-moz-transform: rotateX(15deg);
 			-webkit-transform: rotateX(15deg);
