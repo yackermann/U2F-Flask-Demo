@@ -1,6 +1,6 @@
 
 var getJSON = function(url, callback){
-    fetch(url).then(function(response) {
+    fetch(url, {credentials : 'same-origin'}).then(function(response) {
         return response.json()
     }).then(function(json) {
         callback(json)
@@ -12,6 +12,7 @@ var getJSON = function(url, callback){
 var post = function (url, body, callback) {
     fetch(url, {
         method  : 'post',
+        credentials : 'same-origin',
         headers : {
             'Accept'       : 'application/json',
             'Content-Type' : 'application/json'
