@@ -34,6 +34,7 @@ $ python run.py
  - [ ] Write API docs
  - [ ] Implement facets support
  - [ ] Documentation
+ - [ ] Unit tests
 
 ## License
 
