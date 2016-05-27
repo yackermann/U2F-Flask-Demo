@@ -100,6 +100,8 @@ def u2fenroll():
                                               [app.config['APPID']])
             except Exception as e:
                 return jsonify({'status':'failed', 'error': 'Invalid Challenge!'})
+            finally:
+                pass
             
             devices = [DeviceRegistration.wrap(device) for device in user.get_u2f_devices()]
             devices.append(binding)
@@ -129,7 +131,7 @@ def u2fsign():
             return challenge.json
 
         # Verify User
-        elif request.method == 'POST':
+        elif request.method == 'POST':  
             signature = request.json
 
             devices = [DeviceRegistration.wrap(device) for device in user.get_u2f_devices()]
@@ -139,6 +141,8 @@ def u2fsign():
                 counter, touch = verify_authenticate(devices, challenge, signature, [app.config['APPID']])
             except Exception as e:
                 return jsonify({'status':'failed', 'error': 'Invalid Signature!'})
+            finally:
+                pass
 
             session['logged_in'] = True
             return jsonify({
