@@ -25,6 +25,7 @@ class Auth(db.Model):
         db.session.add(self)
         db.session.commit()
 
+    # Password
     def set_password(self, password):
         """Generate a random salt and return a new hash for the password."""
         self.password = passwords.hash_password(password)
@@ -32,8 +33,6 @@ class Auth(db.Model):
     def check_password(self, password):
         """Check a password against an existing hash."""
         return passwords.check_password(self.password, password)
-
-
 
     # U2F
     def get_u2f_devices(self):
