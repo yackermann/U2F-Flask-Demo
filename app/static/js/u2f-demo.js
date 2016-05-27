@@ -58,16 +58,73 @@ var u2f_enroll = function(e) {
     }
 
 
+    var logger = new Logger('register_log');
+
+    if(user['username'] && user['password']){
+
+        $post('/register', user, function(response){
+            if(response.status === 'success'){
+
+                logger.log('Registering...');
+
+                $post('/login', user, function(response){
+                    if(response.status !== 'failed'){
+
+                        logger.log('Requesting challenge...')
+
+                        $get('/enroll', function(serverreq){
+                            logger.log('Registering...')
+                            var req = serverreq.registerRequests[0];
+
+                            // Getting AppID
+                            var appid = req.appId;
+                           
+                            // Formating Challenge
+                            var challenge = [{version: req.version, challenge: req.challenge}];
+
+                            logger.log(req)
+                            logger.log('Waiting for user action...')
+
+                            u2f.register(appid, challenge, [], function(deviceResponse) {
+
+                                if(deviceResponse.errorCode){
+                                    logger.log('U2F ERROR: ' + U2F_ERROR_CODES[deviceResponse.errorCode]);
+                                }else{
+                                    logger.log(deviceResponse);
+                                    logger.log('Verifying with server...');
+                                    
+                                    $post('/enroll', deviceResponse,  function(serverResonse){
+                                        if(serverResonse.status === 'success'){
+                                            logger.log('Success!');
+                                        }else{
+                                            logger.log('Fail! ' + serverResonse.error);
+                                        }
+                                    })
+                                }
+
+                            }, 10);
+                        });
+                    }else{
+                        logger.log('Login Failed');
+                    }
+                });
+            }else{
+                logger.log('Failed');
+                logger.log(response.error);
+            }
+        })
+    }
 
     return false;
 }
+
 
 var u2f_sign = function(e) {
     if (e.preventDefault) e.preventDefault();
 
     var user = {
-        'username': enroll_form.elements['username'].value,
-        'password': enroll_form.elements['password'].value
+        'username': sign_form.elements['username'].value,
+        'password': sign_form.elements['password'].value
     }
 
 
@@ -91,7 +148,7 @@ var u2f_sign = function(e) {
                         // Getting Challenge
                         var challenge = req.challenge;
 
-                        // Formating challenge for U2F key
+                        // Formating keyhandle for U2F key
                         var registeredKeys = [{version: req.version, keyHandle: req.keyHandle}];
 
                         logger.log('Getting challenge...');
@@ -138,7 +195,7 @@ var u2f_sign = function(e) {
 /* ----- EVENT HANDLERS ----- */
 
 /* --- U2F --- */
-    var enroll_form = $id('u2f_login_form');
+    var enroll_form = $id('u2f_register_form');
     enroll_form.addEventListener("submit", u2f_enroll);
 
     var sign_form = $id('u2f_login_form');
