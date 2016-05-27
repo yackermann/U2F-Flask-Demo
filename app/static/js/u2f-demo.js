@@ -1,4 +1,4 @@
-
+    
 var $get = function(url, callback){
     fetch(url, {credentials : 'same-origin'}).then(function(response) {
         return response.json()
@@ -27,6 +27,28 @@ var $post = function (url, body, callback) {
     })
 }
 
+var $id = function(id){
+    return document.getElementById(id);
+}
+
+var Logger = function(id) {
+    this.textarea = id;
+}
+
+var U2F_ERROR_CODES = {
+    1 : 'OTHER_ERROR',
+    2 : 'BAD_REQUEST',
+    3 : 'CONFIGURATION_UNSUPPORTED',
+    4 : 'DEVICE_INELIGIBLE',
+    5 : 'TIMEOUT'
+}
+
+Logger.prototype.log = function(text) {
+    $logarea = $id(this.textarea);
+    $logarea.value = '> ' + text + '\n' + $logarea.value;
+    console.log(text);
+}
+
 var u2f_enroll = function(e) {
     if (e.preventDefault) e.preventDefault();
 
@@ -48,10 +70,18 @@ var u2f_sign = function(e) {
         'password': enroll_form.elements['password'].value
     }
 
+
+    var logger = new Logger('login_log');
+
     if(user['username'] && user['password']){
+        logger.log('Loggin in...')
+
         $post('/login', user,function(response){
             if(response.status === 'failed'){
                 if(response['u2f_sign_required']){
+
+                    logger.log('U2F Required')
+
                     $get('/sign', function(serverreq){
                         var req = serverreq.authenticateRequests[0];
 
@@ -63,23 +93,38 @@ var u2f_sign = function(e) {
 
                         // Formating challenge for U2F key
                         var registeredKeys = [{version: req.version, keyHandle: req.keyHandle}];
-                        console.log(req)
-                        console.log('Waiting for user action...')
+
+                        logger.log('Getting challenge...');
+                        logger.log(req);
+                        logger.log('Waiting for user action...');
+
                        
                         u2f.sign(appid, challenge, registeredKeys, function(deviceResponse) {
-                            console.log(deviceResponse)
-                            console.log('Verifying with server...')
-                            
-                            $post('/sign', deviceResponse, (response) => console.log(response))
-
+                            if(deviceResponse.errorCode){
+                                logger.log('U2F ERROR: ' + U2F_ERROR_CODES[deviceResponse.errorCode]);
+                            }else{
+                                logger.log(deviceResponse);
+                                logger.log('Verifying with server...');
+                                
+                                $post('/sign', deviceResponse, function(serverResonse){
+                                    if(serverResonse.status === 'success'){
+                                        logger.log('Success! Counter ' + serverResonse.counter);
+                                    }else{
+                                        logger.log('Fail! ' + serverResonse.error);
+                                    }
+                                })
+                            }
+                          
                             return
                         }, 10);
                     });
                 }else{
-                    console.log(response.error)
+                    logger.log('Fail');
+                    logger.log(response.error);
                 }
             }else{
-                console.log('Login successful. No U2F sign required.')
+                logger.log('Success');
+                logger.log('No U2F required');
             }
         });
     }
@@ -91,11 +136,6 @@ var u2f_sign = function(e) {
 
 
 /* ----- EVENT HANDLERS ----- */
-
-var $id = function(id){
-    return document.getElementById(id);
-}
-
 
 /* --- U2F --- */
     var enroll_form = $id('u2f_login_form');
