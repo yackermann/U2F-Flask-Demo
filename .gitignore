@@ -3,6 +3,12 @@
 # Databases
 *.db
 
+# KEYS
+*.key
+*.crt
+
+# Flask-Migrations
+migrations
 
 # Created by https://www.gitignore.io/api/python
 
