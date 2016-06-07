@@ -10,12 +10,23 @@ $ virtualenv venv && venv
 $ source ./venv/bin/activate
 ```
 
+Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
 Initialize Database
 
 ```bash
 $ python create_db.py
 ```
 
+Generate private key and certificate for SSL
+
+```bash
+openssl req -newkey rsa:2048 -nodes -keyout domain.key -x509 -days 365 -out domain.crt
+```
 
 Generate new cookie master key
 
