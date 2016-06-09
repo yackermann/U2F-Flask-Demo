@@ -11,7 +11,7 @@ class Auth(db.Model):
     u2f_devices = db.Column(db.String)
 
     def __init__(self, username, password=None):
-        self.username = username
+        self.username = username.lower()
 
         if password:
             self.password = passwords.hash_password(password)

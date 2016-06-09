@@ -15,6 +15,7 @@ def register():
         if not req.get('username')  or not req.get('password'):
             return jsonify({'status': 'failed', 'error': 'Username or/and password missing'})
 
+        req['username'] = req['username'].lower()
         user = models.Auth.query.filter_by(username=req['username']).first()
 
         if not user:
@@ -36,6 +37,7 @@ def login():
         if not req.get('username')  or not req.get('password'):
             return jsonify({'status': 'failed', 'error': 'Username or/and password missing'})
 
+        req['username'] = req['username'].lower()
         user = models.Auth.query.filter_by(username=req['username']).first()
 
         if user:
@@ -79,6 +81,7 @@ def u2fenroll():
     if not session.get('logged_in', False):
         return jsonify({'status': 'failed', 'error': 'Access denied. You must login'})
 
+    req['username'] = req['username'].lower()
     user = models.Auth.query.filter_by(username=session['username']).first()
     
     if user:
@@ -118,7 +121,8 @@ def u2fsign():
 
     if not session.get('authenticated', False):
         return jsonify({'status': 'failed', 'error': 'Access denied. You must login'})
-
+    
+    req['username'] = req['username'].lower()
     user = models.Auth.query.filter_by(username=session['username']).first()
 
     if user:
