@@ -5,12 +5,12 @@ import json
 class Auth(db.Model):
     __tablename__ = 'users'
 
-    id          = db.Column(db.Integer, primary_key= True)
-    username    = db.Column(db.String , unique=True)
+    id          = db.Column(db.Integer, primary_key = True)
+    username    = db.Column(db.String , unique      = True)
     password    = db.Column(db.String)
     u2f_devices = db.Column(db.String)
 
-    def __init__(self, username, password=None):
+    def __init__(self, username, password = None):
         self.username = username.lower()
 
         if password:

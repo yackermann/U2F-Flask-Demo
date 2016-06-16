@@ -23,6 +23,7 @@ def check_password(hash_, password):
     algorithm, hash_function, cost_factor, salt, hash_a = hash_.split('$')
 
     assert algorithm == 'PBKDF2'
+    
     salt        = salt.encode('utf-8')
     password    = password.encode('utf-8')
     cost_factor = int(cost_factor)
