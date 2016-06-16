@@ -81,7 +81,6 @@ def u2fenroll():
     if not session.get('logged_in', False):
         return jsonify({'status': 'failed', 'error': 'Access denied. You must login'})
 
-    req['username'] = req['username'].lower()
     user = models.Auth.query.filter_by(username=session['username']).first()
     
     if user:
@@ -122,7 +121,6 @@ def u2fsign():
     if not session.get('authenticated', False):
         return jsonify({'status': 'failed', 'error': 'Access denied. You must login'})
     
-    req['username'] = req['username'].lower()
     user = models.Auth.query.filter_by(username=session['username']).first()
 
     if user:
