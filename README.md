@@ -6,14 +6,14 @@ FIDO U2F Flask Demo
 Initialize virtual environment
 
 ```
-$ virtualenv venv && venv
+$ virtualenv venv
 $ source ./venv/bin/activate
 ```
 
 Install dependencies
 
 ```bash
-pip install -r requirements.txt
+$ pip install -r requirements.txt
 ```
 
 Initialize Database
