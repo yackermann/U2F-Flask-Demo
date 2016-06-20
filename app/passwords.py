@@ -1,6 +1,7 @@
 from os import urandom
 from hashlib import pbkdf2_hmac
 from binascii import hexlify
+from itertools import izip
 
 # Parameters to PBKDF2. Only affect new passwords.
 SALT_LENGTH = 16
@@ -29,4 +30,7 @@ def check_password(hash_, password):
     cost_factor = int(cost_factor)
     hash_b      = hexlify(pbkdf2_hmac(hash_function, password, salt, cost_factor)).decode('utf-8') 
 
-    return hash_a == hash_b
+    for char_a, char_b in izip(hash_a, hash_b):
+        diff |= ord(char_a) ^ ord(char_b)
+
+    return diff == 0
