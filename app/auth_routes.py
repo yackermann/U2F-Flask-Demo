@@ -111,7 +111,7 @@ def u2fenroll():
             
             devices = [DeviceRegistration.wrap(device) for device in user.get_u2f_devices()]
             devices.append(binding)
-            user.set_u2f_devices([d.json for d in devices])
+            user.set_u2f_devices(devices)
             user.commit()
 
             return jsonify({'status': 'success'})
@@ -149,7 +149,6 @@ def u2fsign():
                 return jsonify({'status':'failed', 'error': 'Invalid Signature!'})
             finally:
                 pass
-
 
             session['logged_in'] = True
             return jsonify({
