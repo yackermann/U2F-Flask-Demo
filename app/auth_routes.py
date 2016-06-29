@@ -24,6 +24,10 @@ def register():
             return jsonify({'status': 'success'})
 
         else:
+            # If user has no U2F devices
+            if user.get_u2f_devices() == []:
+                return jsonify({'status': 'failed', 'u2f_enroll_required': True})
+
             return jsonify({'status': 'failed', 'error': 'User already exists'})
 
 
@@ -145,6 +149,7 @@ def u2fsign():
                 return jsonify({'status':'failed', 'error': 'Invalid Signature!'})
             finally:
                 pass
+
 
             session['logged_in'] = True
             return jsonify({

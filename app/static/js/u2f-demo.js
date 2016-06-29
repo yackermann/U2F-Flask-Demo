@@ -63,7 +63,7 @@ var u2f_enroll = function(e) {
     if(user['username'] && user['password']){
 
         $post('/register', user, function(response){
-            if(response.status === 'success'){
+            if(response.status === 'success' || response.u2f_enroll_required){
 
                 logger.log('Registering...');
 
