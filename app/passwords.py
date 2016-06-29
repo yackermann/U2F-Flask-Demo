@@ -29,6 +29,9 @@ def check_password(hash_, password):
     cost_factor = int(cost_factor)
     hash_b      = hexlify(pbkdf2_hmac(hash_function, password, salt, cost_factor)).decode('utf-8') 
 
+    # Same as "return hash_a == hash_b" but takes a constant time.
+    # See http://carlos.bueno.org/2011/10/timing.html
+    diff = 0
     for char_a, char_b in zip(hash_a, hash_b):
         diff |= ord(char_a) ^ ord(char_b)
 
