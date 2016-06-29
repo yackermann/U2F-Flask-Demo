@@ -144,24 +144,28 @@ def u2fsign():
         elif request.method == 'POST':  
             signature = request.json
 
-            devices = [DeviceRegistration.wrap(device) for device in user.get_u2f_devices()]
-
+            devices   = [DeviceRegistration.wrap(device) for device in user.get_u2f_devices()]
             challenge = session.pop('_u2f_challenge_')
+
             try:
                 counter, touch = verify_authenticate(devices, challenge, signature, [app.config['APPID']])
             except Exception as e:
+                print(e)
                 return jsonify({'status':'failed', 'error': 'Invalid Signature!'})
             finally:
                 pass
 
-            session['logged_in'] = True
-            return jsonify({
-                # FIDO U2F protocol specifies x01 is true for user touch. 
-                # Need to convert to bool before include to JSON
-                'touch': bool(touch), 
-                'counter': counter,
-                'status': 'success'
-            })
+            if user.verify_u2f_counter(signature, counter):
+                session['logged_in'] = True
+                return jsonify({
+                    'status'  : 'success',
+                    'counter' : counter
+                })
+            else:
+                return jsonify({'status':'failed', 'error': 'Device clone detected!'})
+
+
+            
 
     return jsonify({'status': 'failed', 'error': 'Access denied. You must login'})
 
