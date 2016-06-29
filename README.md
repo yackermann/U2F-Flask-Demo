@@ -49,4 +49,4 @@ Run application
 
 ## License
 
-[MIT](https://github.com/herrniemand/U2F-Flask-Demo/blob/master/LICENSE.md) © [Yuriy Ackermann](https://nieman.de/)
+[MIT](https://github.com/herrjemand/U2F-Flask-Demo/blob/master/LICENSE.md) © [Yuriy Ackermann](https://jeman.de/)
