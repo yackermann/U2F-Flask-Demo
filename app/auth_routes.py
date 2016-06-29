@@ -102,15 +102,19 @@ def u2fenroll():
             response = request.json
 
             try:
-                binding, cert = complete_register(session.pop('_u2f_enroll_'), response,
+                new_device, cert = complete_register(session.pop('_u2f_enroll_'), response,
                                               [app.config['APPID']])
             except Exception as e:
                 return jsonify({'status':'failed', 'error': 'Invalid Challenge!'})
             finally:
                 pass
             
-            devices = [DeviceRegistration.wrap(device) for device in user.get_u2f_devices()]
-            devices.append(binding)
+            # Setting new device counter to 0
+            new_device['counter'] = 0
+
+            devices = user.get_u2f_devices()
+            devices.append(new_device)
+            
             user.set_u2f_devices(devices)
             user.commit()
 
