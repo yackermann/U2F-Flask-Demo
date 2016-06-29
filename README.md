@@ -6,20 +6,20 @@ FIDO U2F Flask Demo
 Initialize virtual environment
 
 ```
-$ virtualenv venv
-$ source ./venv/bin/activate
+virtualenv venv
+source ./venv/bin/activate
 ```
 
 Install dependencies
 
 ```bash
-$ pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 Initialize Database
 
 ```bash
-$ python create_db.py
+python create_db.py
 ```
 
 Generate private key and certificate for SSL
@@ -31,13 +31,13 @@ openssl req -newkey rsa:2048 -nodes -keyout domain.key -x509 -days 365 -out doma
 Generate new cookie master key
 
 ```bash
-$ python reset_cookie_key.py
+python reset_cookie_key.py
 ```
 
 Run application
 
 ```bash
-$ python run.py
+./run.py
 ```
 
 ## TODO
