@@ -1,10 +1,6 @@
 from app import app, db, models
 from flask import jsonify, request, session
 
-# U2F Libs
-from u2flib_server.jsapi import DeviceRegistration
-from u2flib_server.u2f import (start_register, complete_register, start_authenticate, verify_authenticate)
-
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     """User register/authentication/session management."""
