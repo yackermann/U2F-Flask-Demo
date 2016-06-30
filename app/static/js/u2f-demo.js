@@ -49,6 +49,8 @@ Logger.prototype.log = function(text) {
     console.log(text);
 }
 
+var locked = false;
+
 var u2f_enroll = function(e) {
     if (e.preventDefault) e.preventDefault();
 
@@ -60,20 +62,20 @@ var u2f_enroll = function(e) {
 
     var logger = new Logger('register_log');
 
-    if(user['username'] && user['password']){
+    if(user['username'] && user['password'] && !locked){
 
         $post('/register', user, function(response){
             if(response.status === 'success' || response.u2f_enroll_required){
 
                 logger.log('Registering...');
-
+                locked = true;
                 $post('/login', user, function(response){
                     if(response.status !== 'failed'){
 
-                        logger.log('Requesting challenge...')
+                        logger.log('Requesting challenge...');
 
                         $get('/enroll', function(serverreq){
-                            logger.log('Registering...')
+                            logger.log('Registering...');
                             var req = serverreq.registerRequests[0];
 
                             // Getting AppID
@@ -82,10 +84,11 @@ var u2f_enroll = function(e) {
                             // Formating Challenge
                             var challenge = [{version: req.version, challenge: req.challenge}];
 
-                            logger.log(req)
-                            logger.log('Waiting for user action...')
+                            logger.log(req);
+                            logger.log('Waiting for user action...');
 
                             u2f.register(appid, challenge, [], function(deviceResponse) {
+                                locked = false;
 
                                 if(deviceResponse.errorCode){
                                     logger.log('U2F ERROR: ' + U2F_ERROR_CODES[deviceResponse.errorCode]);
@@ -130,13 +133,13 @@ var u2f_sign = function(e) {
 
     var logger = new Logger('login_log');
 
-    if(user['username'] && user['password']){
+    if(user['username'] && user['password'] && !locked){
         logger.log('Loggin in...')
 
         $post('/login', user,function(response){
+            locked = true;
             if(response.status === 'failed'){
                 if(response['u2f_sign_required']){
-
                     logger.log('U2F Required')
 
                     $get('/sign', function(serverreq){
@@ -157,6 +160,7 @@ var u2f_sign = function(e) {
 
                        
                         u2f.sign(appid, challenge, registeredKeys, function(deviceResponse) {
+                            locked = false;
                             if(deviceResponse.errorCode){
                                 logger.log('U2F ERROR: ' + U2F_ERROR_CODES[deviceResponse.errorCode]);
                             }else{
