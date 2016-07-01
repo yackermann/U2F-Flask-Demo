@@ -31,9 +31,17 @@ var $id = function(id){
     return document.getElementById(id);
 }
 
+
 var Logger = function(id) {
     this.textarea = id;
 }
+
+Logger.prototype.log = function(text) {
+    $logarea = $id(this.textarea);
+    $logarea.value = '> ' + text + '\n' + $logarea.value;
+    console.log(text);
+}
+
 
 var U2F_ERROR_CODES = {
     1 : 'OTHER_ERROR',
@@ -43,16 +51,11 @@ var U2F_ERROR_CODES = {
     5 : 'TIMEOUT'
 }
 
-Logger.prototype.log = function(text) {
-    $logarea = $id(this.textarea);
-    $logarea.value = '> ' + text + '\n' + $logarea.value;
-    console.log(text);
-}
-
 var locked = false;
 
 var u2f_enroll = function(e) {
     if (e.preventDefault) e.preventDefault();
+
 
     var user = {
         'username': enroll_form.elements['username'].value,
@@ -63,6 +66,7 @@ var u2f_enroll = function(e) {
     var logger = new Logger('register_log');
 
     if(user['username'] && user['password'] && !locked){
+        clear_textareas();
 
         $post('/register', user, function(response){
             if(response.status === 'success' || response.u2f_enroll_required){
@@ -121,9 +125,9 @@ var u2f_enroll = function(e) {
     return false;
 }
 
-
 var u2f_sign = function(e) {
     if (e.preventDefault) e.preventDefault();
+
 
     var user = {
         'username': sign_form.elements['username'].value,
@@ -134,6 +138,8 @@ var u2f_sign = function(e) {
     var logger = new Logger('login_log');
 
     if(user['username'] && user['password'] && !locked){
+        clear_textareas();
+        
         logger.log('Loggin in...')
 
         $post('/login', user,function(response){
@@ -193,6 +199,22 @@ var u2f_sign = function(e) {
     return false;
 }
 
+var clear_textareas = function() {
+    var textareas = document.getElementsByTagName('textarea');
+    
+    for(var i = 0; i < textareas.length; i++)
+        textareas[i].value = '';
+}
+
+var clear_inputs = function() {
+    var inputs    = document.getElementsByTagName('input');
+
+    for (var i = 0; i < inputs.length; i++){
+        if(inputs[i].type !== 'submit')
+            inputs[i].value = '';
+    }
+}
+
 
 
 
@@ -206,19 +228,23 @@ var u2f_sign = function(e) {
     sign_form.addEventListener("submit", u2f_sign);
 /* --- U2F END --- */
 
-var login_container = $id('login');
-var register_container = $id('register');
+    var login_container = $id('login');
+    var register_container = $id('register');
 
-var regbutton = $id('switch_to_register');
-var loginbutton = $id('switch_to_login');
+    var regbutton = $id('switch_to_register');
+    var loginbutton = $id('switch_to_login');
 
-regbutton.addEventListener('click', function(){
-    login_container.className = 'main hidden'
-    register_container.className = 'main present'
-}, false)
+    regbutton.addEventListener('click', function(){
+        login_container.className    = 'main hidden';
+        register_container.className = 'main present';
+        clear_textareas();
+        clear_inputs();
+    }, false)
 
-loginbutton.addEventListener('click', function(){
-    register_container.className = 'main hidden';
-    login_container.className    = 'main present'
-}, false)
+    loginbutton.addEventListener('click', function(){
+        register_container.className = 'main hidden';
+        login_container.className    = 'main present';
+        clear_textareas();
+        clear_inputs();
+    }, false)
 
