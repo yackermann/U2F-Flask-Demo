@@ -48,17 +48,14 @@ class Auth(db.Model):
         devices = self.get_u2f_devices()
 
         for device in devices:
-            print(device, signature)
             # Searching for specific keyhandle
             if device['keyHandle'] == signature['keyHandle']:
                 if counter > device['counter']:
                     # Updating counter record
-                    print('Sweet as bro! ', counter)
                     device['counter'] = counter
                     self.set_u2f_devices(devices)
                     return True
                 else:
-                    print('NOPE', counter)
                     return False
 
         return False
