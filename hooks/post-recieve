@@ -3,21 +3,25 @@ APP=~/applications/u2f-flask
 VENVDIR='venv'
 
 if [ ! -d $APP ]; then
+    echo $APP - Does NOT exists
     git clone $LOCATION $APP
     cd $APP
     git remote add upstream $LOCATION
     git branch --set-upstream-to=upstream/master
 else
+    echo $APP - Folder exists:
     cd $APP
     git pull
 fi
 
 if [ ! -d $VENVDIR ]; then
+    echo $VENVDIR NOT exists
     virtualenv $VENVDIR
 fi
 
 
 source ./venv/bin/activate
+
 pip install -r requirements.txt
 
 # Reseting DB
