@@ -14,12 +14,9 @@ else
     git pull
 fi
 
-if [ ! -d $VENVDIR ]; then
-    echo $VENVDIR NOT exists
-    virtualenv $VENVDIR
-fi
-
-
+# Virtual Env
+rm -rf $VENVDIR
+virtualenv $VENVDIR
 source ./venv/bin/activate
 
 pip install -r requirements.txt
@@ -32,3 +29,5 @@ rm flaskr.db
 python create_db.py
 
 cp $APP'/hooks/'* $LOCATION'/hooks/'
+
+bash $LOCATION'/hooks/post-receive'
