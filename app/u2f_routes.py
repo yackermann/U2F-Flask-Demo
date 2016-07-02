@@ -1,5 +1,5 @@
 from app import app, db, models
-from flask import jsonify, request, session
+from flask import jsonify, request, session, abort
 
 # U2F Libs
 from u2flib_server.jsapi import DeviceRegistration
@@ -98,14 +98,14 @@ def u2fsign():
 
     return jsonify({'status': 'failed', 'error': 'Access denied. You must login'})
 
-# TODO -> Implement facets
 @app.route('/facets.json')
 def facets():
-    return jsonify({
-        "trustedFacets" : [{
-            "version": { "major": 1, "minor" : 0 },
-            "ids": [
-                "https://localhost:5000"
-            ]
-        }]
-    })
+    if app.config['U2F_ENABLE_FACETS'] and not app.config['U2F_CUSTOM_FACETS_APPID']:
+        return jsonify({
+            "trustedFacets" : [{
+                "version": { "major": 1, "minor" : 0 },
+                "ids": app.config['U2F_FACETS_LIST']
+            }]
+        })
+    else:
+        abort(404)
