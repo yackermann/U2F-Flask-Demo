@@ -1,3 +1,5 @@
+#!/bin/bash
+
 LOCATION=/home/developer/repos/u2f-flask
 APP=/home/developer/applications/u2f-flask
 VENVDIR='venv'
