@@ -1,0 +1,13 @@
+[Unit]
+Description=uWSGI instance to serve u2fflask
+After=network.target
+
+[Service]
+User=developer
+Group=www-data
+WorkingDirectory=/applications/u2f-flask
+Environment="PATH=/applications/u2f-flask/venv/bin"
+ExecStart=/applications/u2f-flask/venv/bin/uwsgi --ini uwsgi.ini
+
+[Install]
+WantedBy=multi-user.target
