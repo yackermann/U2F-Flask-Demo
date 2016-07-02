@@ -11,14 +11,14 @@ with open(COOKEY_FILE) as r:
 
 
 # ----- U2F ----- #
-U2F_APPID               = 'https://localhost:5000'
+U2F_APPID               = 'https://u2f.jeman.de/'
 
 # Uncomment to enable custom facets location
 # U2F_CUSTOM_FACETS_APPID = 'https://localhost:5000/securutyKeys/facets.json'
 U2F_CUSTOM_FACETS_APPID = ''
 U2F_ENABLE_FACETS       = False
 U2F_FACETS_LIST         = [
-    'https://localhost:5000'
+    'https://u2f.jeman.de/'
 ]
 
 
