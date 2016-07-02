@@ -24,11 +24,11 @@ source ./venv/bin/activate
 
 pip install -r requirements.txt
 
+# Reseting cookies
+python reset_cookie_key.py
+
 # Reseting DB
 rm flaskr.db
 python create_db.py
-
-# Reseting cookies
-python reset_cookie_key.py
 
 cp $APP'/hooks/'* $LOCATION'/hooks/'
