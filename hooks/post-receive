@@ -16,9 +16,11 @@ else
     git pull
 fi
 
-# Virtual Env
-rm -rf $VENVDIR
-virtualenv $VENVDIR
+if [ ! -d $VENVDIR ]; then
+    # Virtual Env
+    virtualenv $VENVDIR
+fi
+
 source ./venv/bin/activate
 
 pip install -r requirements.txt
