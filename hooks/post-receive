@@ -4,7 +4,7 @@ LOCATION=/home/developer/repos/u2f-flask
 APP=/home/developer/applications/u2f-flask
 VENVDIR='venv'
 
-if [ ! -d $APP ]; theyn
+if [ ! -d $APP ]; then
     echo $APP - Does NOT exists
     git clone $LOCATION $APP
     cd $APP
