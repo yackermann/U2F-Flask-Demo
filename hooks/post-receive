@@ -2,20 +2,11 @@ LOCATION=/home/developer/repos/u2f-flask
 APP=/home/developer/applications/u2f-flask
 VENVDIR='venv'
 
-if [ ! -d $APP ]; then
-    echo $APP - Does NOT exists
-    git clone $LOCATION $APP
-    cd $APP
-    git remote add upstream $LOCATION
-    git branch --set-upstream-to=upstream/master
-else
-    echo $APP - Folder exists:
-    cd $APP
-    git pull
-fi
+git clone $LOCATION $APP
+
+cd $APP
 
 # Virtual Env
-rm -rf $VENVDIR
 virtualenv $VENVDIR
 source ./venv/bin/activate
 
