@@ -20,5 +20,3 @@ rm flaskr.db
 python create_db.py
 
 cp $APP'/hooks/'* $LOCATION'/hooks/'
-
-bash $LOCATION'/hooks/post-receive'
