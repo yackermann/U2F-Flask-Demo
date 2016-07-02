@@ -21,7 +21,7 @@ def u2fenroll():
         if request.method == 'GET':
 
             devices = [DeviceRegistration.wrap(device) for device in user.get_u2f_devices()]
-            enroll  = start_register(app.config['APPID'], devices)
+            enroll  = start_register(app.config['U2F_APPID'], devices)
 
             session['_u2f_enroll_'] = enroll.json
             return enroll.json
@@ -32,7 +32,7 @@ def u2fenroll():
 
             try:
                 new_device, cert = complete_register(session.pop('_u2f_enroll_'), response,
-                                              [app.config['APPID']])
+                                              [app.config['U2F_APPID']])
             except Exception as e:
                 return jsonify({'status':'failed', 'error': 'Invalid Challenge!'})
             finally:
@@ -77,7 +77,7 @@ def u2fsign():
             challenge = session.pop('_u2f_challenge_')
 
             try:
-                counter, touch = verify_authenticate(devices, challenge, signature, [app.config['APPID']])
+                counter, touch = verify_authenticate(devices, challenge, signature, [app.config['U2F_APPID']])
             except Exception as e:
                 print(e)
                 return jsonify({'status':'failed', 'error': 'Invalid Signature!'})
