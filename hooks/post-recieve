@@ -1,0 +1,30 @@
+LOCATION=~/repos/u2f-flask
+APP=~/applications/u2f-flask
+VENVDIR='venv'
+
+if [ ! -d $APP ]; then
+    git clone $LOCATION $APP
+    cd $APP
+    git remote add upstream $LOCATION
+    git branch --set-upstream-to=upstream/master
+else
+    cd $APP
+    git pull
+fi
+
+if [ ! -d $VENVDIR ]; then
+    virtualenv $VENVDIR
+fi
+
+
+source ./venv/bin/activate
+pip install -r requirements.txt
+
+# Reseting DB
+rm flaskr.db
+python create_db.py
+
+# Reseting cookies
+python reset_cookie_key.py
+
+cp $APP'/hooks/'* $LOCATION'/hooks/'
