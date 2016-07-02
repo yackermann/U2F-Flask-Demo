@@ -1,5 +1,5 @@
-LOCATION=~/repos/u2f-flask
-APP=~/applications/u2f-flask
+LOCATION=/home/developer/repos/u2f-flask
+APP=/home/developer/applications/u2f-flask
 VENVDIR='venv'
 
 if [ ! -d $APP ]; then
