@@ -39,7 +39,7 @@ def u2fenroll():
 
             try:
                 new_device, cert = complete_register(session.pop('_u2f_enroll_'), response,
-                                              [app.config['U2F_APPID']])
+                                              app.config['U2F_FACETS_LIST'])
                 logging.info('%s Successfully enrolled %s\'s U2F device', LOG_PREFIX, user.username)
             except Exception as e:
                 logging.warning('%s User %s failed to provide valid signature! %s', LOG_PREFIX, user.username, str(e))
@@ -90,7 +90,7 @@ def u2fsign():
             challenge = session.pop('_u2f_challenge_')
 
             try:
-                counter, touch = verify_authenticate(devices, challenge, signature, [app.config['U2F_APPID']])
+                counter, touch = verify_authenticate(devices, challenge, signature, app.config['U2F_FACETS_LIST'])
                 logging.info('%s User %s had successfully signed challenge!', LOG_PREFIX, user.username)
             except Exception as e:
                 logging.warning('%s User %s failed to provide valid signature! %s', LOG_PREFIX, user.username, str(e))
@@ -115,7 +115,7 @@ def u2fsign():
 
 @app.route('/facets.json')
 def facets():
-    if app.config['U2F_ENABLE_FACETS'] and not app.config['U2F_CUSTOM_FACETS_APPID']:
+    if app.config['U2F_FACETS_ENABLED']:
         logging.debug('%s Getting facets', LOG_PREFIX)
         return jsonify({
             "trustedFacets" : [{
