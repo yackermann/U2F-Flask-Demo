@@ -16,35 +16,34 @@ logging.basicConfig(filename = LOG_FILE,
                     level    = LOG_LEVEL)
 # Adds console print
 logging.getLogger().addHandler(logging.StreamHandler())
-
 # ----- LOGGING ENDS ----- #
 
 
-# ----- APP Specific ----- #
+# ----- COOKIE ----- #
 COOKEY_FILE = 'COOKEY.key'
 
 with open(COOKEY_FILE) as r:
     SECRET_KEY = r.read() #Reads key from file
-# ----- APP Specific ENDS ----- #
+# ----- COOKIE ENDS ----- #
 
 
 # ----- U2F ----- #
-U2F_APPID               = 'https://localhost:5000'
+U2F_APPID          = 'https://localhost:5000'
 
-# Uncomment to enable custom facets location
-# U2F_CUSTOM_FACETS_APPID = 'https://localhost:5000/securutyKeys/facets.json'
-U2F_CUSTOM_FACETS_APPID = ''
-U2F_ENABLE_FACETS       = False
-U2F_FACETS_LIST         = [
+# Set to True to enable facets
+U2F_FACETS_ENABLED = False
+U2F_FACETS_LIST    = [
     'https://localhost:5000'
 ]
 
 
-# Set appid to appid + /facets.json or custom location
-if U2F_ENABLE_FACETS and not U2F_CUSTOM_FACETS_APPID:
+# Set appid to appid + /facets.json if U2F_FACETS_ENABLED
+# or U2F_APP becomes U2F_FACETS_LIST
+if U2F_FACETS_ENABLED:
     U2F_APPID += '/facets.json'
-elif U2F_CUSTOM_FACETS_APPID:
-    U2F_APPID = U2F_CUSTOM_FACETS_APPID
+    assert len(U2F_FACETS_LIST) > 0
+else:
+    U2F_FACETS_LIST = [U2F_APPID]
 # ----- U2F ENDS ----- #
 
 
