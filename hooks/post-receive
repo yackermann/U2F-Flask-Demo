@@ -1,7 +1,7 @@
 #!/bin/bash
 
 LOCATION=/home/developer/repos/u2f-flask
-APP=/home/developer/applications/u2f-flask
+APP=/applications/u2f-flask
 VENVDIR='venv'
 
 if [ ! -d $APP ]; then
@@ -13,6 +13,7 @@ if [ ! -d $APP ]; then
 else
     echo $APP - Folder exists:
     cd $APP
+    pwd
     git pull
 fi
 
