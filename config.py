@@ -1,8 +1,26 @@
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))
+import logging
+
+# ----- LOGGING ----- #
+DEBUG     = True
+LOG_FILE  = 'logfile.log'
+# 1    DEBUG - detailed info
+# 2     INFO - confirmation that things according to plan
+# 3  WARNING - something unexpected
+# 4    ERROR - some function failed
+# 5 CRITICAL - application failure
+LOG_LEVEL = logging.DEBUG
+
+logging.basicConfig(filename = LOG_FILE, 
+                    level    = LOG_LEVEL)
+# Adds console print
+logging.getLogger().addHandler(logging.StreamHandler())
+
+# ----- LOGGING ENDS ----- #
+
 
 # ----- APP Specific ----- #
-DEBUG       = True
 COOKEY_FILE = 'COOKEY.key'
 
 with open(COOKEY_FILE) as r:
