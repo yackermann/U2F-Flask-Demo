@@ -43,7 +43,7 @@ Run application
 ## TODO
 
  - [ ] Write API docs
- - [ ] Implement facets support
+ - [x] Implement facets support
  - [ ] Documentation
  - [ ] Unit tests
 
