@@ -1,5 +1,6 @@
 from app import app, db, models
 from flask import jsonify, request, session
+import logger
 
 LOG_PREFIX = 'AUTH:'
 
