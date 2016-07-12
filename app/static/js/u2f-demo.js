@@ -78,20 +78,22 @@ var u2f_enroll = function(e) {
 
                         logger.log('Requesting challenge...');
 
-                        $get('/enroll', function(serverreq){
-                            logger.log('Registering...');
-                            var req = serverreq.registerRequests[0];
+                        $get('/enroll', function(response){
+                            logger.log('Registerinsssg...', response);
+                            var register = response.registerRequests;
+                            var sign     = response.authenticateRequests;
 
                             // Getting AppID
-                            var appid = req.appId;
+                            console.log(register, sign)
+                            var appid = register[0].appId;
                            
                             // Formating Challenge
-                            var challenge = [{version: req.version, challenge: req.challenge}];
+                            // var challenge = [{version: req.version, challenge: req.challenge}];
 
                             logger.log(req);
                             logger.log('Waiting for user action...');
 
-                            u2f.register(appid, challenge, [], function(deviceResponse) {
+                            u2f.register(appid, register, sign, function(deviceResponse) {
                                 locked = false;
 
                                 if(deviceResponse.errorCode){
