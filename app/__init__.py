@@ -31,17 +31,6 @@ def enroll_on_success():
     # Executes on successful U2F enroll
     pass
 
-@u2f.enroll_on_fail
-def enroll_on_fail():
-    # Executes on failed U2F enroll
-    pass
-
 @u2f.sign_on_success
 def sign_on_success():
     session['logged_in']         = True
-    session['u2f_sign_required'] = False
-
-@u2f.sign_on_fail
-def sign_on_fail():
-    # Executes on failed U2F authentication
-    pass

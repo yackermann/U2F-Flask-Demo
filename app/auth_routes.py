@@ -53,12 +53,13 @@ def login():
 
                 if not user.has_u2f_devices():
                     session['logged_in'] = True
-                    session['u2f_enroll_authorized'] = True
-                    session['u2f_allow_device_management']  = True
+
+                    u2f.enable_device_management()
+                    u2f.enable_enroll()
 
                     return jsonify({'status': 'ok'})
                 else:
-                    session['u2f_sign_required'] = True
+                    u2f.enable_sign()
                     return jsonify({'status': 'failed', 'u2f_sign_required': True})
             else:
                 return jsonify({'status': 'failed', 'error': 'Username or/and password is incorrect'})
