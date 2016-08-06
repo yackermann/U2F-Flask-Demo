@@ -17,7 +17,7 @@ class Auth(db.Model):
         self.username = username.lower()
 
         if password:
-            logging.debug('%s Password provided', LOG_PREFIX, username)
+            logging.debug('%s %s provided password', LOG_PREFIX, username)
             self.password = passwords.hash_password(password)
 
         self.u2f_devices = json.dumps([])
