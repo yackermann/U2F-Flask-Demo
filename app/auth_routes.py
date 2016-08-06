@@ -80,6 +80,7 @@ def isLogged():
 @app.route('/logout')
 def logout():
     """User logout/authentication/session management."""
+    
     logging.debug('%s Logging out user %s', LOG_PREFIX, session.get('username')) 
     session.pop('logged_in'     , None)
     session.pop('username'      , None)
