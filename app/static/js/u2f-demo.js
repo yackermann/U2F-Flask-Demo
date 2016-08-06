@@ -4,8 +4,8 @@ var $get = function(url, callback){
         return response.json()
     }).then(function(json) {
         callback(json)
-    }).catch(function(ex) {
-        callback({ 'error': ex })
+    }).catch(function(error) {
+        callback({ 'error': error })
     })
 }
 
@@ -22,14 +22,29 @@ var $post = function (url, body, callback) {
         return response.json()
     }).then(function (json) {
         callback(json)
-    }).catch(function (ex) {
-        callback({ 'error': ex })
+    }).catch(function (error) {
+        callback({ 'error': error })
     })
 }
 
-var $id = function(id){
-    return document.getElementById(id);
+var $delete = function (url, body, callback) {
+    fetch(url, {
+        method  : 'delete',
+        credentials : 'same-origin',
+        headers : {
+            'Accept'       : 'application/json',
+            'Content-Type' : 'application/json'
+        },
+        body    : JSON.stringify(body)
+    }).then(function (response) {
+        return response.json()
+    }).then(function (json) {
+        callback(json)
+    }).catch(function (error) {
+        callback({ 'error': error })
+    })
 }
+
 
 
 var Logger = function(id) {
@@ -37,8 +52,8 @@ var Logger = function(id) {
 }
 
 Logger.prototype.log = function(text) {
-    $logarea = $id(this.textarea);
-    $logarea.value = '> ' + text + '\n' + $logarea.value;
+    $logarea = $(this.textarea);
+    $logarea.val('> ' + text + '\n' + $logarea.val());
     console.log(text);
 }
 
@@ -54,16 +69,16 @@ var U2F_ERROR_CODES = {
 var locked = false;
 
 var u2f_enroll = function(e) {
-    if (e.preventDefault) e.preventDefault();
-
+    e.preventDefault();
+    e.stopPropagation();
 
     var user = {
-        'username': enroll_form.elements['username'].value,
-        'password': enroll_form.elements['password'].value
+        'username': enroll_form.find('input[name=username]').val(),
+        'password': enroll_form.find('input[name=password]').val()
     }
 
 
-    var logger = new Logger('register_log');
+    var logger = new Logger('#register_log');
 
     if(user['username'] && user['password'] && !locked){
         clear_textareas();
@@ -90,7 +105,9 @@ var u2f_enroll = function(e) {
                             logger.log(request);
                             logger.log('Waiting for user action...');
 
+
                             u2f.register(appid, registerRequests, authenticateRequests, function(deviceResponse) {
+
                                 locked = false;
 
                                 if(deviceResponse.errorCode){
@@ -126,16 +143,15 @@ var u2f_enroll = function(e) {
 }
 
 var u2f_sign = function(e) {
-    if (e.preventDefault) e.preventDefault();
-
+    e.preventDefault();
+    e.stopPropagation();
 
     var user = {
-        'username': sign_form.elements['username'].value,
-        'password': sign_form.elements['password'].value
+        'username': sign_form.find('input[name=username]').val(),
+        'password': sign_form.find('input[name=password]').val()
     }
 
-
-    var logger = new Logger('login_log');
+    var logger = new Logger('#login_log');
 
     if(user['username'] && user['password'] && !locked){
         clear_textareas();
@@ -200,14 +216,14 @@ var u2f_sign = function(e) {
 }
 
 var clear_textareas = function() {
-    var textareas = document.getElementsByTagName('textarea');
+    var textareas = $('textarea');
     
     for(var i = 0; i < textareas.length; i++)
         textareas[i].value = '';
 }
 
 var clear_inputs = function() {
-    var inputs    = document.getElementsByTagName('input');
+    var inputs = $('input');
 
     for (var i = 0; i < inputs.length; i++){
         if(inputs[i].type !== 'submit')
@@ -221,32 +237,31 @@ var clear_inputs = function() {
 /* ----- EVENT HANDLERS ----- */
 
 /* --- U2F --- */
-    var enroll_form = $id('u2f_register_form');
-    enroll_form.addEventListener("submit", u2f_enroll);
+    var enroll_form = $('#u2f_register_form');
+    enroll_form.submit(u2f_enroll);
 
-    var sign_form = $id('u2f_login_form');
-    sign_form.addEventListener("submit", u2f_sign);
+
+
+    var sign_form = $('#u2f_login_form');
+    sign_form.submit(u2f_sign);
 /* --- U2F END --- */
 
-    var login_container = $id('login');
-    var register_container = $id('register');
+    var login_container = $('#login');
+    var register_container = $('#register');
 
-    var regbutton = $id('switch_to_register');
-    var loginbutton = $id('switch_to_login');
-
-    regbutton.addEventListener('click', function(){
-        login_container.className    = 'main hidden';
-        register_container.className = 'main present';
+    $('#switch_to_register').on('click', function(){
+        $('.main').addClass('hidden');
+        register_container.removeClass('hidden');
         clear_textareas();
         clear_inputs();
         locked = false;
-    }, false)
+    })
 
-    loginbutton.addEventListener('click', function(){
-        register_container.className = 'main hidden';
-        login_container.className    = 'main present';
+    $('#switch_to_login').on('click', function(){
+        $('.main').addClass('hidden');
+        login_container.removeClass('hidden');
         clear_textareas();
         clear_inputs();
         locked = false;
-    }, false)
+    })
 
