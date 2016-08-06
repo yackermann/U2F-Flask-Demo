@@ -4,8 +4,8 @@ var $get = function(url, callback){
         return response.json()
     }).then(function(json) {
         callback(json)
-    }).catch(function(ex) {
-        callback({ 'error': ex })
+    }).catch(function(error) {
+        callback({ 'error': error })
     })
 }
 
@@ -22,10 +22,30 @@ var $post = function (url, body, callback) {
         return response.json()
     }).then(function (json) {
         callback(json)
-    }).catch(function (ex) {
-        callback({ 'error': ex })
+    }).catch(function (error) {
+        callback({ 'error': error })
     })
 }
+
+var $delete = function (url, body, callback) {
+    fetch(url, {
+        method  : 'delete',
+        credentials : 'same-origin',
+        headers : {
+            'Accept'       : 'application/json',
+            'Content-Type' : 'application/json'
+        },
+        body    : JSON.stringify(body)
+    }).then(function (response) {
+        return response.json()
+    }).then(function (json) {
+        callback(json)
+    }).catch(function (error) {
+        callback({ 'error': error })
+    })
+}
+
+
 
 var Logger = function(id) {
     this.textarea = id;
