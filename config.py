@@ -33,15 +33,6 @@ U2F_FACETS_ENABLED = False
 U2F_FACETS_LIST    = [
     'https://localhost:5000'
 ]
-
-
-# Set appid to appid + /facets.json if U2F_FACETS_ENABLED
-# or U2F_APP becomes U2F_FACETS_LIST
-if U2F_FACETS_ENABLED:
-    U2F_APPID += '/facets.json'
-    assert len(U2F_FACETS_LIST) > 0
-else:
-    U2F_FACETS_LIST = [U2F_APPID]
 # ----- U2F ENDS ----- #
 
 
