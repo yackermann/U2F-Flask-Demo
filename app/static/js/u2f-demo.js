@@ -69,7 +69,7 @@ var u2f_enroll = function(e) {
         clear_textareas();
 
         $post('/register', user, function(response){
-            if(response.status === 'success' || response.u2f_enroll_required){
+            if(response.status === 'ok'){
 
                 logger.log('Registering...');
                 locked = true;
@@ -101,7 +101,7 @@ var u2f_enroll = function(e) {
                                     logger.log('Verifying with server...');
                                     
                                     $post('/enroll', deviceResponse,  function(serverResonse){
-                                        if(serverResonse.status === 'success'){
+                                        if(serverResonse.status === 'ok'){
                                             logger.log('Success!');
                                         }else{
                                             logger.log('Fail! ' + serverResonse.error);
@@ -174,7 +174,7 @@ var u2f_sign = function(e) {
                                 logger.log('Verifying with server...');
                                 
                                 $post('/sign', deviceResponse, function(serverResonse){
-                                    if(serverResonse.status === 'success'){
+                                    if(serverResonse.status === 'ok'){
                                         logger.log('Success! Counter ' + serverResonse.counter);
                                     }else{
                                         logger.log('Fail! ' + serverResonse.error);
