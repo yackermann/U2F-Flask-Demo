@@ -1,5 +1,5 @@
 from flask import Flask, session
-from flask.ext.sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy
 
 from flask_fido_u2f import U2F
 
