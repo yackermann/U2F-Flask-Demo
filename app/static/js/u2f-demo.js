@@ -69,29 +69,28 @@ var u2f_enroll = function(e) {
         clear_textareas();
 
         $post('/register', user, function(response){
-            if(response.status === 'success' || response.u2f_enroll_required){
+            if(response.status === 'ok'){
 
                 logger.log('Registering...');
                 locked = true;
+
                 $post('/login', user, function(response){
                     if(response.status !== 'failed'){
 
                         logger.log('Requesting challenge...');
 
-                        $get('/enroll', function(serverreq){
+                        $get('/enroll', function(request){
                             logger.log('Registering...');
-                            var req = serverreq.registerRequests[0];
+                            var registerRequests = request.registerRequests;
+                            var authenticateRequests = request.authenticateRequests;
 
                             // Getting AppID
-                            var appid = req.appId;
-                           
-                            // Formating Challenge
-                            var challenge = [{version: req.version, challenge: req.challenge}];
+                            var appid = registerRequests[0].appId;
 
-                            logger.log(req);
+                            logger.log(request);
                             logger.log('Waiting for user action...');
 
-                            u2f.register(appid, challenge, [], function(deviceResponse) {
+                            u2f.register(appid, registerRequests, authenticateRequests, function(deviceResponse) {
                                 locked = false;
 
                                 if(deviceResponse.errorCode){
@@ -101,7 +100,7 @@ var u2f_enroll = function(e) {
                                     logger.log('Verifying with server...');
                                     
                                     $post('/enroll', deviceResponse,  function(serverResonse){
-                                        if(serverResonse.status === 'success'){
+                                        if(serverResonse.status === 'ok'){
                                             logger.log('Success!');
                                         }else{
                                             logger.log('Fail! ' + serverResonse.error);
@@ -113,6 +112,7 @@ var u2f_enroll = function(e) {
                         });
                     }else{
                         logger.log('Login Failed');
+                        locked = false;
                     }
                 });
             }else{
@@ -143,30 +143,30 @@ var u2f_sign = function(e) {
         logger.log('Loggin in...')
 
         $post('/login', user,function(response){
-            locked = true;
+            
             if(response.status === 'failed'){
                 if(response['u2f_sign_required']){
-                    logger.log('U2F Required')
 
-                    $get('/sign', function(serverreq){
-                        var req = serverreq.authenticateRequests[0];
+                    logger.log('U2F Required')
+                    locked = true;
+
+                    $get('/sign', function(request){
+                        var authenticateRequests = request.authenticateRequests;
 
                         // Getting AppID
-                        var appid = req.appId;
+                        var appid = authenticateRequests[0].appId;
                        
                         // Getting Challenge
-                        var challenge = req.challenge;
-
-                        // Formating keyhandle for U2F key
-                        var registeredKeys = [{version: req.version, keyHandle: req.keyHandle}];
+                        var challenge = authenticateRequests[0].challenge;
 
                         logger.log('Getting challenge...');
-                        logger.log(req);
+                        logger.log(request);
                         logger.log('Waiting for user action...');
 
                        
-                        u2f.sign(appid, challenge, registeredKeys, function(deviceResponse) {
+                        u2f.sign(appid, challenge, authenticateRequests, function(deviceResponse) {
                             locked = false;
+
                             if(deviceResponse.errorCode){
                                 logger.log('U2F ERROR: ' + U2F_ERROR_CODES[deviceResponse.errorCode]);
                             }else{
@@ -174,7 +174,7 @@ var u2f_sign = function(e) {
                                 logger.log('Verifying with server...');
                                 
                                 $post('/sign', deviceResponse, function(serverResonse){
-                                    if(serverResonse.status === 'success'){
+                                    if(serverResonse.status === 'ok'){
                                         logger.log('Success! Counter ' + serverResonse.counter);
                                     }else{
                                         logger.log('Fail! ' + serverResonse.error);
@@ -239,6 +239,7 @@ var clear_inputs = function() {
         register_container.className = 'main present';
         clear_textareas();
         clear_inputs();
+        locked = false;
     }, false)
 
     loginbutton.addEventListener('click', function(){
@@ -246,5 +247,6 @@ var clear_inputs = function() {
         login_container.className    = 'main present';
         clear_textareas();
         clear_inputs();
+        locked = false;
     }, false)
 
