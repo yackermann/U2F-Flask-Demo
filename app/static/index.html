@@ -11,6 +11,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <!--[if lte IE 8]><script src="assets/js/html5shiv.js"></script><![endif]-->
         <link rel="stylesheet" href="assets/css/main.css" />
+        <link rel="stylesheet" href="assets/css/custom.css" />
         <!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
         <!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
         <noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
@@ -51,45 +52,6 @@
                             </div>
                         </footer>
                     </section>
-                    
-                    <section class="main hidden" id="samples">
-                        <header>
-                            <h1>Samples</h1>
-                        </header>
-                        
-                        <!-- <hr /> -->
-
-                        <article>
-                            <section>
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <td width="333">EPN</td>
-                                            <td width="333">Patient</td>
-                                            <td width="333">DOB</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>BB3096</td>
-                                            <td>Bob Marley</td>
-                                            <td>19/04/1976</td>
-                                        </tr>
-                                        <tr>
-                                            <td>BZ1242</td>
-                                            <td>Ricky Baker</td>
-                                            <td>06/12/1988</td>
-                                        </tr>
-                                        <tr>
-                                            <td>BL2214</td>
-                                            <td>Stephen Fry</td>
-                                            <td>29/04/1954</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </section>
-                        </article>
-                    </section>
 
                     <section class="main hidden" id="register">
                         <header>
@@ -120,7 +82,35 @@
                             </div>
                         </footer>
                     </section>
+                    
+                    <section class="main hidden" id="devices">
+                        <header>
+                            <h1>Devices</h1>
+                        </header>
+                        
+                        <!-- <hr /> -->
 
+                        <article>
+                            <section>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <td width="333">ID</td>
+                                            <td width="333">Date</td>
+                                            <td width="333"></td>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="keys_trs">
+                                       
+                                    </tbody>
+                                </table>
+                            </section>
+                            <br>
+                            <a class="logout button" href="#">Logout</a>
+                            <a class="newdevice button" href="#">Add new device</a>
+                        </article>
+                    </section>
+                    
                 <!-- Footer -->
                     <footer id="footer">
                         <ul class="copyright">
@@ -141,8 +131,8 @@
                 }
             </script>
 
+            <script src="/js/zepto.min.js"></script>
             <script src="/js/u2f-api.js"></script>
             <script src="/js/u2f-demo.js"></script>
-
     </body>
 </html>
