@@ -177,6 +177,8 @@ var u2f_enroll = function(e) {
 
                     }else{
                         logger.log('Login Failed');
+                        logger.log(response);
+
                         locked = false;
                     }
                 });
@@ -207,8 +209,7 @@ var u2f_sign = function(e) {
         logger.log('Loggin in...')
 
         $post('/login', user,function(response){
-            
-            if(response.status === 'failed'){
+            if(!response.error){
                 if(response['u2f_sign_required']){
 
                     logger.log('U2F Required')
@@ -254,15 +255,15 @@ var u2f_sign = function(e) {
                         }, 10);
                     });
                 }else{
-                    logger.log('Fail');
-                    logger.log(response.error);
+                    logger.log('Success');
+                    logger.log('No U2F required');
+                    setTimeout(function(){
+                        login_user();
+                    }, 1500);
                 }
             }else{
-                logger.log('Success');
-                logger.log('No U2F required');
-                setTimeout(function(){
-                    login_user();
-                }, 1500)      
+                logger.log('Fail');
+                logger.log(response.error);
             }
         });
     }
