@@ -1,4 +1,18 @@
     
+var el = {
+    'devices'            : '#devices',
+    'devices_list'       : '#devices_tbody',
+    'panels'             : '.panel',
+    'login_log'          : '#login_log',
+    'logout'             : '.logout',
+    'register_log'       : '#register_log',
+    'u2f_register_form'  : '#u2f_register_form',
+    'u2f_login_form'     : '#u2f_login_form',
+    'login_panel'        : '#login',
+    'register_panel'     : '#register',
+    'switch_to_register' : '#switch_to_register',
+    'switch_to_login'    : '#switch_to_login'
+}
 var $get = function(url, callback){
     fetch(url, {credentials : 'same-origin'}).then(function(response) {
         return response.json()
@@ -72,13 +86,13 @@ var show_devices = function(data){
         var devices = data.devices;
         for(var i = 0; i < devices.length; i++){
             var device = devices[i];
-            var new_device = '<tr id="' + device.id.substr(0, 16) + '">'
+            var new_device = '<tr id="' + device.id + '">'
             +     '<td>' + device.id.substr(0, 15) + '</td>'
             +     '<td>' + device.timestamp + '</td>'
             +     '<td><a href="#" class="button remove_device" data-id="' + device.id + '">Delete key</a></td>'
             + '</tr>';
 
-            $('#keys_trs').append(new_device);
+            $(el.devices_list).append(new_device);
         }
     }
 }
@@ -88,8 +102,8 @@ var remove_device = function(a, b, c) {
 }
 
 var login_user = function() {
-    $('.main').addClass('hidden');
-    $('#devices').removeClass('hidden');
+    $(el.panels).addClass('hidden');
+    $(el.devices).removeClass('hidden');
     $get('/devices', show_devices);
 }
 
@@ -141,7 +155,7 @@ var u2f_enroll = function(e) {
     }
 
 
-    var logger = new Logger('#register_log');
+    var logger = new Logger(el.register_log);
 
     if(user['username'] && user['password'] && !locked){
         clear_textareas();
@@ -185,7 +199,7 @@ var u2f_sign = function(e) {
         'password': sign_form.find('input[name=password]').val()
     }
 
-    var logger = new Logger('#login_log');
+    var logger = new Logger(el.login_log);
 
     if(user['username'] && user['password'] && !locked){
         clear_textareas();
@@ -272,34 +286,40 @@ var clear_inputs = function() {
     }
 }
 
+var clear_devices = function() {
+    $(el.devices_list)
+        .children()
+        .remove();
+}
+
 
 
 
 /* ----- EVENT HANDLERS ----- */
 
 /* --- U2F --- */
-    var enroll_form = $('#u2f_register_form');
+    var enroll_form = $(el.u2f_register_form);
     enroll_form.submit(u2f_enroll);
 
 
 
-    var sign_form = $('#u2f_login_form');
+    var sign_form = $(el.u2f_login_form);
     sign_form.submit(u2f_sign);
 /* --- U2F END --- */
 
-    var login_container = $('#login');
-    var register_container = $('#register');
+    var login_container = $(el.login_panel);
+    var register_container = $(el.register_panel);
 
-    $('#switch_to_register').on('click', function(){
-        $('.main').addClass('hidden');
+    $(el.switch_to_register).on('click', function(){
+        $(el.panels).addClass('hidden');
         register_container.removeClass('hidden');
         clear_textareas();
         clear_inputs();
         locked = false;
     })
 
-    $('#switch_to_login').on('click', function(){
-        $('.main').addClass('hidden');
+    $(el.switch_to_login).on('click', function(){
+        $(el.panels).addClass('hidden');
         login_container.removeClass('hidden');
         clear_textareas();
         clear_inputs();
@@ -309,9 +329,10 @@ var clear_inputs = function() {
     $(document).on('click', '.remove_device', remove_device);
 
     /*----- Logout button -----*/
-    $('.logout').on('click', function() {
+    $(el.logout).on('click', function() {
         $get('/logout', function(){
-            $('.main').addClass('hidden');
+            clear_devices();
+            $(el.panels).addClass('hidden');
             login_container.removeClass('hidden');
         })
 
