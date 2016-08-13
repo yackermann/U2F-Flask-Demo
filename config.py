@@ -1,6 +1,4 @@
-import os
-basedir = os.path.abspath(os.path.dirname(__file__))
-import logging
+import os, logging
 
 # ----- LOGGING ----- #
 DEBUG     = True
@@ -35,15 +33,6 @@ U2F_FACETS_ENABLED = False
 U2F_FACETS_LIST    = [
     'https://u2f.jeman.de'
 ]
-
-
-# Set appid to appid + /facets.json if U2F_FACETS_ENABLED
-# or U2F_APP becomes U2F_FACETS_LIST
-if U2F_FACETS_ENABLED:
-    U2F_APPID += '/facets.json'
-    assert len(U2F_FACETS_LIST) > 0
-else:
-    U2F_FACETS_LIST = [U2F_APPID]
 # ----- U2F ENDS ----- #
 
 
@@ -54,7 +43,8 @@ USERNAME    = 'admin'
 PASSWORD    = 'admin'
 
 # defines the full path for the database
-DATABASE_PATH = os.path.join(basedir, DATABASE)
+BASEDIR       = os.path.abspath(os.path.dirname(__file__))
+DATABASE_PATH = os.path.join(BASEDIR, DATABASE)
 
 # the database uri
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + DATABASE_PATH

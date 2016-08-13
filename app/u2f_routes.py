@@ -101,6 +101,7 @@ def u2fsign():
 
             if user.verify_u2f_counter(signature, counter):
                 session['logged_in'] = True
+                print(type(touch))
                 return jsonify({
                     'status'  : 'success',
                     'counter' : counter

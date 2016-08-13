@@ -17,7 +17,7 @@ class Auth(db.Model):
         self.username = username.lower()
 
         if password:
-            logging.debug('%s Password provided', LOG_PREFIX, username)
+            logging.debug('%s %s provided password', LOG_PREFIX, username)
             self.password = passwords.hash_password(password)
 
         self.u2f_devices = json.dumps([])
@@ -52,22 +52,6 @@ class Auth(db.Model):
         logging.debug('%s Updating %s\'s U2F devices', LOG_PREFIX, self.username)
         self.u2f_devices = json.dumps(devices)
 
-    def verify_u2f_counter(self, signature, counter):
-        """Verifies U2F device counter"""
-        devices = self.get_u2f_devices()
-        logging.debug('%s Verifying %s\'s signature counter', LOG_PREFIX, self.username)
-        for device in devices:
-            # Searching for specific keyhandle
-            if device['keyHandle'] == signature['keyHandle']:
-                if counter > device['counter']:
-                    # Updating counter record
-                    logging.info('%s Verified counter for user: %s', LOG_PREFIX, self.username)
-                    
-                    device['counter'] = counter
-                    self.set_u2f_devices(devices)
-                    return True
-                else:
-                    logging.warning('%s Detected key clone. User: %s', LOG_PREFIX, self.username)
-                    return False
-
-        return False
+    def has_u2f_devices(self):
+        """Checks if user has any enrolled u2f devices"""
+        return len(self.get_u2f_devices()) > 0
