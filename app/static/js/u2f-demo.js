@@ -3,8 +3,10 @@ var el = {
     'devices'            : '#devices',
     'devices_list'       : '#devices_tbody',
     'panels'             : '.panel',
-    'login_log'          : '#login_log',
     'logout'             : '.logout',
+    'newdevice'          : '.newdevice',
+    'login_log'          : '#login_log',
+    'devices_log'        : '#devices_log',
     'register_log'       : '#register_log',
     'u2f_register_form'  : '#u2f_register_form',
     'u2f_login_form'     : '#u2f_login_form',
@@ -81,65 +83,105 @@ var U2F_ERROR_CODES = {
 }
 
 
-var show_devices = function(data){
-    if(data.status == 'ok'){
-        var devices = data.devices;
-        for(var i = 0; i < devices.length; i++){
-            var device = devices[i];
-            var new_device = '<tr id="' + device.id + '">'
-            +     '<td>' + device.id.substr(0, 15) + '</td>'
-            +     '<td>' + device.timestamp + '</td>'
-            +     '<td><a href="#" class="button remove_device" data-id="' + device.id + '">Delete key</a></td>'
-            + '</tr>';
+var show_devices = function(){
+    $get('/devices', function(data) {
 
-            $(el.devices_list).append(new_device);
+        if(!data.error){
+            var devices = data.devices;
+            for(var i = 0; i < devices.length; i++){
+                var device = devices[i];
+                var date   = new Date(device.timestamp * 1000);
+                var new_device = '<tr id="' + device.id + '">'
+                +     '<td>' + device.id.substr(0, 15) + '</td>'
+                +     '<td>' + date.toLocaleDateString() + '</td>'
+                +     '<td><a href="#" class="button remove_device" data-id="' + device.id + '">Delete key</a></td>'
+                + '</tr>';
+
+                $(el.devices_list).append(new_device);
+            }
         }
+    });
+}
+
+var remove_device = function(caller) {
+    
+    var logger   = new Logger(el.devices_log)
+    var id       = $(caller.currentTarget).data('id');
+    var short_id = id.substr(0,15);
+
+    logger.log('Confirming removal of ' + id);
+
+    var sure = confirm('Are you sure you want to remove ' + short_id + '?');
+    if(sure) {
+        logger.log('Removing ' + short_id);
+        $delete('/devices', {'id': id}, function(response) {
+            if(!response.error) {
+                $('#' + id).remove();
+                logger.log('Successfully removed ' + short_id + '!');
+            }else{
+                logger.log('Failed');
+                logger.log(response.error);
+            }
+        })
+    }else{
+        logger.log('Canceled');
     }
 }
 
-var remove_device = function(a, b, c) {
-    console.log(a,b,c);
-}
 
 var login_user = function() {
     $(el.panels).addClass('hidden');
     $(el.devices).removeClass('hidden');
-    $get('/devices', show_devices);
+    show_devices();
 }
 
-var register_key = function(){
+var register_device = function(){
+    var logger = new Logger(el.devices_log)
+    clear_textareas();
     $get('/enroll', function(request){
-        logger.log('Registering...');
-        var registerRequests = request.registerRequests;
-        var authenticateRequests = request.authenticateRequests;
+        if(!request.error){
+            locked = true;
 
-        // Getting AppID
-        var appid = registerRequests[0].appId;
+            logger.log('Registering...');
+            var registerRequests = request.registerRequests;
+            var authenticateRequests = request.authenticateRequests;
 
-        logger.log(request);
-        logger.log('Waiting for user action...');
+            // Getting AppID
+            var appid = registerRequests[0].appId;
+
+            logger.log(request);
+            logger.log('Waiting for user action...');
 
 
-        u2f.register(appid, registerRequests, authenticateRequests, function(deviceResponse) {
+            u2f.register(appid, registerRequests, authenticateRequests, function(deviceResponse) {
 
+                locked = false;
+
+                if(deviceResponse.errorCode){
+                    logger.log('U2F ERROR: ' + U2F_ERROR_CODES[deviceResponse.errorCode]);
+                }else{
+                    logger.log(deviceResponse);
+                    logger.log('Verifying with server...');
+                    
+                    $post('/enroll', deviceResponse,  function(response){
+                        if(!response.error){
+                            logger.log('Success!');
+                            logger.log(response)
+                            clear_devices();
+                            show_devices();
+                        }else{
+                            logger.log('Failed');
+                            logger.log(response.error);
+                        }
+                    })
+                }
+
+            }, 10);
+        }else{
             locked = false;
-
-            if(deviceResponse.errorCode){
-                logger.log('U2F ERROR: ' + U2F_ERROR_CODES[deviceResponse.errorCode]);
-            }else{
-                logger.log(deviceResponse);
-                logger.log('Verifying with server...');
-                
-                $post('/enroll', deviceResponse,  function(serverResonse){
-                    if(serverResonse.status === 'ok'){
-                        logger.log('Success!');
-                    }else{
-                        logger.log('Fail! ' + serverResonse.error);
-                    }
-                })
-            }
-
-        }, 10);
+            logger.log('Failed');
+            logger.log(response.error);
+        }
     });
 }
 
@@ -161,7 +203,7 @@ var u2f_enroll = function(e) {
         clear_textareas();
 
         $post('/register', user, function(response){
-            if(response.status === 'ok'){
+            if(!response.error){
 
                 logger.log('Registering...');
                 locked = true;
@@ -293,9 +335,6 @@ var clear_devices = function() {
         .remove();
 }
 
-
-
-
 /* ----- EVENT HANDLERS ----- */
 
 /* --- U2F --- */
@@ -327,6 +366,7 @@ var clear_devices = function() {
         locked = false;
     })
 
+    $(el.newdevice).on('click', register_device);
     $(document).on('click', '.remove_device', remove_device);
 
     /*----- Logout button -----*/
@@ -339,11 +379,11 @@ var clear_devices = function() {
 
     })
 
-setTimeout(function(){
-    $get('/islogged', function(response){
-        if(response.status === 'ok'){
-            if(response.logged_in)
-                login_user();
-        }
-    })
-}, 1000)
+    setTimeout(function(){
+        $get('/islogged', function(response){
+            if(response.status === 'ok'){
+                if(response.logged_in)
+                    login_user();
+            }
+        })
+    }, 1000)
