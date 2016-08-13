@@ -83,20 +83,23 @@ var U2F_ERROR_CODES = {
 }
 
 
-var show_devices = function(data){
-    if(data.status == 'ok'){
-        var devices = data.devices;
-        for(var i = 0; i < devices.length; i++){
-            var device = devices[i];
-            var new_device = '<tr id="' + device.id + '">'
-            +     '<td>' + device.id.substr(0, 15) + '</td>'
-            +     '<td>' + device.timestamp + '</td>'
-            +     '<td><a href="#" class="button remove_device" data-id="' + device.id + '">Delete key</a></td>'
-            + '</tr>';
+var show_devices = function(){
+    $get('/devices', function(data) {
 
-            $(el.devices_list).append(new_device);
+        if(!data.error){
+            var devices = data.devices;
+            for(var i = 0; i < devices.length; i++){
+                var device = devices[i];
+                var new_device = '<tr id="' + device.id + '">'
+                +     '<td>' + device.id.substr(0, 15) + '</td>'
+                +     '<td>' + device.timestamp + '</td>'
+                +     '<td><a href="#" class="button remove_device" data-id="' + device.id + '">Delete key</a></td>'
+                + '</tr>';
+
+                $(el.devices_list).append(new_device);
+            }
         }
-    }
+    });
 }
 
 var remove_device = function(caller) {
@@ -128,7 +131,7 @@ var remove_device = function(caller) {
 var login_user = function() {
     $(el.panels).addClass('hidden');
     $(el.devices).removeClass('hidden');
-    $get('/devices', show_devices);
+    show_devices();
 }
 
 var register_device = function(){
@@ -163,6 +166,8 @@ var register_device = function(){
                         if(!response.error){
                             logger.log('Success!');
                             logger.log(response)
+                            clear_devices();
+                            show_devices();
                         }else{
                             logger.log('Failed');
                             logger.log(response.error);
@@ -197,7 +202,7 @@ var u2f_enroll = function(e) {
         clear_textareas();
 
         $post('/register', user, function(response){
-            if(response.status === 'ok'){
+            if(!response.error){
 
                 logger.log('Registering...');
                 locked = true;
