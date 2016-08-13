@@ -33,4 +33,6 @@ def enroll_on_success():
 
 @u2f.sign_on_success
 def sign_on_success():
-    session['logged_in']         = True
+    session['logged_in'] = True
+    u2f.enable_device_management()
+    u2f.enable_enroll()
