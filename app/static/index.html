@@ -11,6 +11,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <!--[if lte IE 8]><script src="assets/js/html5shiv.js"></script><![endif]-->
         <link rel="stylesheet" href="assets/css/main.css" />
+        <link rel="stylesheet" href="assets/css/custom.css" />
         <!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
         <!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
         <noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
@@ -22,7 +23,7 @@
                 <a href="https://github.com/herrjemand/U2F-Flask-Demo"><img style="position: absolute; top: 0; left: 0; border: 0; width: 149px; height: 149px;" src="https://aral.github.io/fork-me-on-github-retina-ribbons/left-dusk-blue@2x.png" alt="Fork me on GitHub"></a>
 
                 <!-- Main -->
-                    <section class="main" id="login">
+                    <section class="panel " id="login">
                         <header>
                             <h1>U2F Demo</h1>
                             <p>Login</p>
@@ -52,7 +53,7 @@
                         </footer>
                     </section>
 
-                    <section class="main hidden" id="register">
+                    <section class="panel hidden" id="register">
                         <header>
                             <h1>U2F Demo</h1>
                             <p>Registration</p>
@@ -81,7 +82,35 @@
                             </div>
                         </footer>
                     </section>
+                    
+                    <section class="panel hidden" id="devices">
+                        <header>
+                            <h1>Devices</h1>
+                        </header>
+                        
+                        <!-- <hr /> -->
 
+                        <article>
+                            <section>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <td width="333">ID</td>
+                                            <td width="333">Date</td>
+                                            <td width="333"></td>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="devices_tbody">
+                                       
+                                    </tbody>
+                                </table>
+                            </section>
+                            <br>
+                            <a class="logout button" href="#">Logout</a>
+                            <a class="newdevice button" href="#">Add new device</a>
+                        </article>
+                    </section>
+                    
                 <!-- Footer -->
                     <footer id="footer">
                         <ul class="copyright">
@@ -102,8 +131,8 @@
                 }
             </script>
 
+            <script src="/js/zepto.min.js"></script>
             <script src="/js/u2f-api.js"></script>
             <script src="/js/u2f-demo.js"></script>
-
     </body>
 </html>
