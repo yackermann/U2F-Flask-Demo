@@ -99,9 +99,31 @@ var show_devices = function(data){
     }
 }
 
-var remove_device = function(a, b, c) {
-    console.log(a,b,c);
+var remove_device = function(caller) {
+    
+    var logger   = new Logger(el.devices_log)
+    var id       = $(caller.currentTarget).data('id');
+    var short_id = id.substr(0,15);
+
+    logger.log('Confirming removal of ' + id);
+
+    var sure = confirm('Are you sure you want to remove ' + short_id + '?');
+    if(sure) {
+        logger.log('Removing ' + short_id);
+        $delete('/devices', {'id': id}, function(response) {
+            if(!response.error) {
+                $('#' + id).remove();
+                logger.log('Successfully removed ' + short_id + '!');
+            }else{
+                logger.log('Failed');
+                logger.log(response.error);
+            }
+        })
+    }else{
+        logger.log('Canceled');
+    }
 }
+
 
 var login_user = function() {
     $(el.panels).addClass('hidden');
