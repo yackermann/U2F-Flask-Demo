@@ -3,8 +3,10 @@ var el = {
     'devices'            : '#devices',
     'devices_list'       : '#devices_tbody',
     'panels'             : '.panel',
-    'login_log'          : '#login_log',
     'logout'             : '.logout',
+    'newdevice'          : '.newdevice',
+    'login_log'          : '#login_log',
+    'devices_log'        : '#devices_log',
     'register_log'       : '#register_log',
     'u2f_register_form'  : '#u2f_register_form',
     'u2f_login_form'     : '#u2f_login_form',
@@ -107,39 +109,51 @@ var login_user = function() {
     $get('/devices', show_devices);
 }
 
-var register_key = function(){
+var register_device = function(){
+    var logger = new Logger(el.devices_log)
+    clear_textareas();
     $get('/enroll', function(request){
-        logger.log('Registering...');
-        var registerRequests = request.registerRequests;
-        var authenticateRequests = request.authenticateRequests;
+        if(!request.error){
+            locked = true;
 
-        // Getting AppID
-        var appid = registerRequests[0].appId;
+            logger.log('Registering...');
+            var registerRequests = request.registerRequests;
+            var authenticateRequests = request.authenticateRequests;
 
-        logger.log(request);
-        logger.log('Waiting for user action...');
+            // Getting AppID
+            var appid = registerRequests[0].appId;
+
+            logger.log(request);
+            logger.log('Waiting for user action...');
 
 
-        u2f.register(appid, registerRequests, authenticateRequests, function(deviceResponse) {
+            u2f.register(appid, registerRequests, authenticateRequests, function(deviceResponse) {
 
+                locked = false;
+
+                if(deviceResponse.errorCode){
+                    logger.log('U2F ERROR: ' + U2F_ERROR_CODES[deviceResponse.errorCode]);
+                }else{
+                    logger.log(deviceResponse);
+                    logger.log('Verifying with server...');
+                    
+                    $post('/enroll', deviceResponse,  function(response){
+                        if(!response.error){
+                            logger.log('Success!');
+                            logger.log(response)
+                        }else{
+                            logger.log('Failed');
+                            logger.log(response.error);
+                        }
+                    })
+                }
+
+            }, 10);
+        }else{
             locked = false;
-
-            if(deviceResponse.errorCode){
-                logger.log('U2F ERROR: ' + U2F_ERROR_CODES[deviceResponse.errorCode]);
-            }else{
-                logger.log(deviceResponse);
-                logger.log('Verifying with server...');
-                
-                $post('/enroll', deviceResponse,  function(serverResonse){
-                    if(serverResonse.status === 'ok'){
-                        logger.log('Success!');
-                    }else{
-                        logger.log('Fail! ' + serverResonse.error);
-                    }
-                })
-            }
-
-        }, 10);
+            logger.log('Failed');
+            logger.log(response.error);
+        }
     });
 }
 
@@ -293,9 +307,6 @@ var clear_devices = function() {
         .remove();
 }
 
-
-
-
 /* ----- EVENT HANDLERS ----- */
 
 /* --- U2F --- */
@@ -327,6 +338,7 @@ var clear_devices = function() {
         locked = false;
     })
 
+    $(el.newdevice).on('click', register_device);
     $(document).on('click', '.remove_device', remove_device);
 
     /*----- Logout button -----*/
@@ -339,11 +351,11 @@ var clear_devices = function() {
 
     })
 
-setTimeout(function(){
-    $get('/islogged', function(response){
-        if(response.status === 'ok'){
-            if(response.logged_in)
-                login_user();
-        }
-    })
-}, 1000)
+    setTimeout(function(){
+        $get('/islogged', function(response){
+            if(response.status === 'ok'){
+                if(response.logged_in)
+                    login_user();
+            }
+        })
+    }, 1000)

@@ -29,6 +29,11 @@ tbody td {
     padding: 10px;
 }
 
+
+#devices footer {
+    margin-top: 4em;
+}
+
 /* ----- Panels ----- */
 
 .panel.hidden {
