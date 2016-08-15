@@ -90,10 +90,9 @@ var show_devices = function(){
             var devices = data.devices;
             for(var i = 0; i < devices.length; i++){
                 var device = devices[i];
-                var date   = new Date(device.timestamp * 1000);
                 var new_device = '<tr id="' + device.id + '">'
                 +     '<td>' + device.id.substr(0, 15) + '</td>'
-                +     '<td>' + date.toLocaleDateString() + '</td>'
+                +     '<td>' + device.index + '</td>'
                 +     '<td><a href="#" class="button remove_device" data-id="' + device.id + '">Delete key</a></td>'
                 + '</tr>';
 
