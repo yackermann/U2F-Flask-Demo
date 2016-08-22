@@ -31,7 +31,7 @@ U2F_APPID          = 'https://u2f.jeman.de'
 # Set to True to enable facets
 U2F_FACETS_ENABLED = True
 U2F_FACETS_LIST    = [
-    'https://u2f.jeman.de'
+    'https://u2f.jeman.de',
     'https://secure.jeman.de'
 ]
 # ----- U2F ENDS ----- #
