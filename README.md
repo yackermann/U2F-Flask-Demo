@@ -1,10 +1,6 @@
 FIDO U2F Flask Demo
 ===
 
-## Demo
-
-Live DEMO -> [https://u2f.jeman.de/](https://u2f.jeman.de/)
-
 ## How to cook it?
 
 Initialize virtual environment
