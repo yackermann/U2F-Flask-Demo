@@ -1,4 +1,4 @@
-FIDO U2F Flask Demo
+DISCONTINUED! PLEASE MOVE TO WEBAUTHN! https://medium.com/@herrjemand/introduction-to-webauthn-api-5fd1fb46c285
 ===
 
 ## How to cook it?
